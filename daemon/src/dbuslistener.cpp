@@ -11,20 +11,8 @@ DBusListener::DBusListener(QObject *parent) :
     QFile compositorQml("/usr/share/lipstick-jolla-home-qt5/qml/compositor.qml");
     if (compositorQml.exists() && compositorQml.open(QFile::ReadWrite)) {
         QByteArray data = compositorQml.readAll();
-        if (!data.contains("PowerMenuDialog") && data.contains("id: layersParent")) {
-            QString pwrMenuQMLPatch("\
-                                    id: layersParent; \
-                                    Item { \
-                                        id: pwrDialogLayer; \
-                                        anchors.fill : parent; \
-                                        PowerMenuDialog{ \
-                                            id : pwrMenuDlg; \
-                                            anchors.fill:parent; \
-                                        } \
-                                        visible : pwrMenuDlg.opacity > 0; \
-                                        z:4; \
-                                    }");
-            data.replace("id: layersParent", pwrMenuQMLPatch);
+        if (!data.contains("PowerMenuDialog") && data.contains("UnresponsiveApplicationDialog")) {
+            data.replace("UnresponsiveApplicationDialog {", "PowerMenuDialog { parent : layersParent; z:4; }\n\n    UnresponsiveApplicationDialog {");
             compositorQml.resize(0);
             compositorQml.seek(0);
             compositorQml.write(data);
